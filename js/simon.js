@@ -68,9 +68,74 @@ function NoteBox(key, onClick) {
 var notes = {};
 
 KEYS.forEach(function (key) {
-	notes[key] = new NoteBox(key);
+	notes[key] = new NoteBox(key, onkeyClick); // Changed here!
 });
 
-KEYS.concat(KEYS.slice().reverse()).forEach(function(key, i) {
+/*KEYS.concat(KEYS.slice().reverse()).forEach(function(key, i) {
 	setTimeout(notes[key].play.bind(null, key), i * NOTE_DURATION);
-});
+});*/
+
+
+var lok = [];  
+var i = 0;
+
+//generates random key 
+function noteGenerator(){ 
+	var randomIndex = Math.floor(Math.random() * 4);
+	var key = KEYS[randomIndex];
+	lok.push(notes[key]);  //new Notebox
+	i = 0;
+
+	echo(lok);
+	
+	console.log(lok.map(k => k.key).join())
+}
+
+//  play the keys out from notegenerator
+async function echo(lok) {
+	console.log('Echoing')
+    for(k of Object.values(notes)){
+        k.disable(); 
+    }
+    for(k of lok){
+        k.play(); 
+		console.log('Playing ' + k.key)
+        await wait(NOTE_DURATION);
+    }
+    for(k of Object.values(notes)){
+        k.enable(); 
+    }
+}
+
+function wait(ms) {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, ms)
+    })
+}
+
+
+//  add to list of keys 
+async function onkeyClick(keyString) {
+	console.log('clicked ' + keyString + ', i = ' + i)
+	if(lok[i] == notes[keyString]){
+		i++;
+
+		if(i >= lok.length){
+			console.log('Start next turn')
+			await wait(1000 + NOTE_DURATION)
+			noteGenerator();
+		}
+	} else {
+		endGame();
+	}
+} 
+
+function endGame(){
+	lok.length = 0;
+
+	alert('GG')
+
+	noteGenerator();
+}
+
+noteGenerator();
